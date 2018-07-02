@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:type" content="game">
     <meta property="og:site_name" content="Nintendo e-shop Database">
-    <meta property="og:url" content="http://gameqb.net">
+    <meta property="og:url" content="http://eshoplist.gameqb.net">
     <meta name="KeyWords" content="nintendo,任天堂,e-shop,switch,nintendo switch,Switch,nintendo eshop"/>
     <meta name="Description" content=""/>
     <meta property="og:description" content="Nintendo e-shop 快速檢索各地的遊戲價格"/> 
@@ -16,14 +16,20 @@
 
     <title>Switch E-Shop 地區比價網</title>
     <link rel="stylesheet" type="text/css" href="index.css">
-    
+    <link rel="alternate" hreflang="en-US" href="http://botwrecipe.gameqb.net/" />
+    <link rel="alternate" hreflang="en-ES" href="http://botwrecipe.gameqb.net/" />
+    <link rel="alternate" hreflang="ja" href="http://botwrecipe.gameqb.net/" />
+    <link rel="alternate" hreflang="zh-Hant" href="http://botwrecipe.gameqb.net/" />
+    <link rel="alternate" hreflang="zh-Hans" href="http://botwrecipe.gameqb.net/" />
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
 
     <script type="text/javascript">
     </script>  
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.1/react.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.1/react-dom.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.18.1/babel.min.js"></script>
+    <script src="./js/main.js"></script>
     <script language="javascript">
     </script> 
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js'></script>
@@ -31,251 +37,65 @@
     <script src="https://unpkg.com/masonry-layout@4.2.0/dist/masonry.pkgd.min.js"></script>
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    
-
-    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-89833109-7"></script>
     <script>
-      (adsbygoogle = window.adsbygoogle || []).push({
-        google_ad_client: "ca-pub-8465631962848847",
-        enable_page_level_ads: true
-      });
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-89833109-7');
     </script>
-    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-    
 
     <script>
-
-    //查詢公用函式
-    function sql_query(sheetID,gid,sql = null){
-      var sheetID = sheetID; // 試算表代號
-      var gid = gid; // 工作表代號
-      //var sql = encodeURI(sql); // SQL 語法 做URL轉換
-      var callback = "callback"; // 回呼函數名稱
-
-      //送出查詢
-      if(sql == null){
-        $.getScript("https://spreadsheets.google.com/tq?tqx=responseHandler:" + callback + "&key=" + sheetID + "&gid=" + gid);
-      }else{
-        $.getScript("https://spreadsheets.google.com/tq?tqx=responseHandler:" + callback + "&tq=" + sql + "&key=" + sheetID + "&gid=" + gid);
-      }
-      return callback;
-    }
-
-    //
-    function list_load_data(){
-      var sheetID = "1dt6FX7yA_g95dX1-5vQg-_GVpfcM3PPNNs645W1YrE4", // 試算表代號
-      gid = "735367841", // 工作表代號
-      sql = "SELECT A , AN"; // SQL 語法
-      
-      var res = sql_query (sheetID,gid,sql);
-      window[res] = function(json) {
-        var $cSel = $('#query_list');
-        var rowArray = json.table.rows,
-        
-        rowLength = rowArray.length,
-        html = "",
-        i, j, game_name,game_c_name;
-        console.log(rowArray);
-        for (i = 0; i < rowLength; i++) {
-          dataGroup = rowArray[i].c;
-          dataLength = dataGroup.length;
-          for (j = 0; j < dataLength; j++) {
-            if (!dataGroup[j]) {
-              continue;
-            }
-          }
-          game_name = dataGroup[0].v;
-          game_c_name = dataGroup[1].v;
-          $cSel.append($("<option></option>")
-               .attr("value",game_name)
-               .text(game_c_name)); 
-          //html += "<br/>";
-        }
-      }
-    }
-
-    //讀取全部資料
-    function eshop_game_query(){
-        
-      var sheetID = "1dt6FX7yA_g95dX1-5vQg-_GVpfcM3PPNNs645W1YrE4", // 試算表代號
-      gid = "735367841", // 工作表代號
-      sql = "SELECT A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,AA,AB,AC,AD,AE,AF,AG,AH,AI,AJ,AK,AL,AM,AN "; // SQL 語法
-      //各地區中文 用硬幹的
-      var country = ['AT','AU', 'BE','BG','CA','CH','CY','CZ','DE','DK','EE','ES','FI','FR','GB','GR','HR','HU','IE','IT','JP','LT','LU' ,'LV' ,'MT','MX','NL' ,'NO','NZ', 'PL' ,'PT','RO','RU','SE','SI','SK' ,'US' ,'ZA'];
-      var c_country = {
-        'AT':'奧地利',
-        'AU':'澳大利亞',
-        'BE':'比利時',
-        'BG':'保加利亞',
-        'CA':'加拿大',
-        'CH':'瑞士',
-        'CY':'賽普勒斯',
-        'CZ':'捷克',
-        'DE':'德國',
-        'DK':'丹麥',
-        'EE':'愛沙尼亞',
-        'ES':'西班牙',
-        'FI':'芬蘭',
-        'FR':'法國',
-        'GB':'英國',
-        'GR':'希臘',
-        'HR':'克羅埃西亞',
-        'HU':'匈牙利',
-        'IE':'愛爾蘭',
-        'IT':'義大利',
-        'JP':'日本',
-        'LT':'立陶宛',
-        'LU':'盧森堡',
-        'LV':'拉脫維亞',
-        'MT':'馬爾他',
-        'MX':'墨西哥',
-        'NL':'荷蘭',
-        'NO':'挪威',
-        'NZ':'紐西蘭',
-        'PL':'波蘭',
-        'PT':'葡萄牙',
-        'RO':'羅馬尼亞',
-        'RU':'俄羅斯',
-        'SE':'瑞典',
-        'SI':'斯洛維尼亞',
-        'SK':'斯洛伐克',
-        'US':'美國',
-        'ZA':'南非'
-      };
-      var price = {};
-      var price_name = {};
-
-      var res = sql_query (sheetID,gid,sql);
-      $("#msg").show();
-      //console.log(res);
-      window[res] = function(json) {
-        $("#msg").hide();
-        var rowArray = json.table.rows,
-        rowLength = rowArray.length,
-        html = "",
-        i, j;
-        rowArray = shuffle(rowArray);
-        var game_count = 0;
-        
-        var dataGroup = '';
-        for (i = 0; i < rowLength; i++) {
-          
-          var idt = new Array;
-          dataGroup = rowArray[i].c;
-          dataLength = dataGroup.length;
-          for (j = 0; j < dataLength; j++) {
-            if (!dataGroup[j]) {
-              continue;
-            }
-          }
-
-          var game_name =  dataGroup[0].v;
-
-          if(game_name == '--') continue;
-          game_count ++;
-          var game_cname = dataGroup[39].v;
-          var show_price = '';
-          var show_onsale_price = '';
-          for(a = 0; a < country.length; a++){
-            //console.log(dataGroup.length);
-            
-            if(dataGroup[a+1] === null) {
-              price[country[a]] = 0;
-            }else if(dataGroup[a+1].v === null){
-              price[country[a]] = 0;
-            }else{
-              
-              price[country[a]] = dataGroup[a+1].v;
-
-            }
-          }  
-          
-          var sortedPrice=sortProperties(price);
-          var best_price = 0;
-          for(x = 0; x < sortedPrice.length ; x ++){
-            var high_price = sortedPrice[sortedPrice.length-1][1].toFixed(0);
-           
-            if(sortedPrice[x][1].toFixed(1) > 0){
-              //console.log(game_name+"//"+sortedPrice[x][1]);
-            best_price = sortedPrice[x][1].toFixed(0); 
-            var best_area =  sortedPrice[x][0].toLowerCase();
-            var bad_area = sortedPrice[sortedPrice.length-1][0].toLowerCase();
-            if(best_price == 0) {
-              show_price = "    <div id='area_box'>---<br></div>";
-            }else{        
-              show_price = "<div id='lower_box'><div class='best_circle'><div class='innimg' style='background-image:url(./png250px/"+ best_area +".png)''></div></div><a id='lower_contry'>"+c_country[sortedPrice[x][0]]+":</a><a id='lower_price'> NT$" + best_price + "</a><a id='pricetip'>此地區為最佳價格</a><br></div>";
-              if(high_price > 0 && sortedPrice[x][0] != sortedPrice[sortedPrice.length-1][0]){
-                show_price += "<div id='higher_box'><div class='bad_circle'><div class='innimg' style='background-image:url(./png250px/"+ bad_area +".png)''></div></div><a id='higher_contry'>"+c_country[sortedPrice[sortedPrice.length-1][0]]+":</a><a id='higher_price'> NT$" + high_price + "</a><br></div>";
-                show_onsale_price +=  "<div id='onsale_box'>與最高價地區價差高達NT$" + (high_price - best_price).toFixed(0) + "!<br></div>";
-              }
-            }
-              break;
-            }else{
-              show_price = "    <div id='area_box'>---<br></div>";
-            }
-
-          }
-          
-          html += "<div style='position:relative;'><div class='game_box' name='"+ game_name.toUpperCase() + game_name.toLowerCase() + "_" + game_name + "_"+ game_cname + "'>" + show_onsale_price + "<a id='c_name'>" + game_cname + "</a><br><a id='name'>" + game_name + "</a><br>" +show_price +  "</div></div>";
-          }
-        $("#game_count").html('目前遊戲數量:'+game_count); 
-        $(".container").html(html); 
-      }
-
-    }
-
-    //洗牌
-    function shuffle(arr){
-      for(var j, x, i = arr.length; i; j = parseInt(Math.random() * i), x = arr[--i], arr[i] = arr[j], arr[j] = x);
-      return arr;
-    }
-
-    //篩選器
-    function search_hide(selector){
-      $(selector).on('keyup',function(){
-        //console.log($(selector).val());
-        var _str = new RegExp($(selector).val());
-        if($(selector).val()==''){ 
-          $(".game_box").show();
-        }else{
-          $(".game_box").hide();
-          $("[name*='" +  $(selector).val() + "']").show();
-        }
-
-      });
-    }
-
-    //排序
-    function sortProperties(obj)
-    {
-      var sortable=[];
-      for(var key in obj)
-        if(obj.hasOwnProperty(key))
-          sortable.push([key, obj[key]]); 
-      
-      sortable.sort(function(a, b)
-      {
-        return a[1]-b[1]; 
-      });
-      return sortable; 
-    }
-
     //網頁開始執行
     $(function ()  {
       winH = $(window).height();
       console.log('start');
       eshop_game_query();
-      search_hide('#search');
+      search_name('#search');
+      search_price();
       
       $('select[name="query_list"]').change(function(){
             game_query();
           });
-      
-      $("body").append("<div id='guidebtn' style='z-index:5;right:24px;position:fixed;top:"+(winH/4)+"px;background-color:#FF0000;color:#FFFFFF;'>地區切換教學</div>");
+
+      $("body").append("<div id='guidebtn' style='z-index:5;right:10px;position:fixed;top:"+(winH/4)+"px;background-color:#66b3ff;color:#FFFFFF;'><i class='fas fa-globe'></i>地區切換教學</div>");
+
 
       $("#guidebtn").click(function () {
                     $("body").css("overflow-y","hidden");
-                    $( "#dialog" ).dialog({
+                    $( "#guide_page" ).dialog({
+                      hide: "blind",
+                      show : "blind",
+                      width: 1000,
+                      modal: true, // Freeze the background behind the overlay
+                      close: function( event, ui ) {
+                        $("body").css("overflow-y","scroll");
+                      },
+                      open: function( event, ui ) {
+                        $("body").css("overflow-y","hidden");
+                      }
+                    });                  
+                });
+      $("#specbtn").click(function () {
+                    $("body").css("overflow-y","hidden");
+                    $( "#spec_page" ).dialog({
+                      hide: "blind",
+                      show : "blind",
+                      width: 1000,
+                      modal: true, // Freeze the background behind the overlay
+                      close: function( event, ui ) {
+                        $("body").css("overflow-y","scroll");
+                      },
+                      open: function( event, ui ) {
+                        $("body").css("overflow-y","hidden");
+                      }
+                    });                  
+                });
+
+      $("#sinupbtn").click(function () {
+                    $("body").css("overflow-y","hidden");
+                    $( "#singup_page" ).dialog({
                       hide: "blind",
                       show : "blind",
                       width: 1000,
@@ -293,30 +113,46 @@
       });
       
     });
-
+   
     </script>
-
 
   </head>
   <body > 
 
   <div ></div>
-  <div id='title'>
+  
+  <div id='title'><i class="fab fa-nintendo-switch " style="font-size:24px"></i>
   Switch E-Shop 地區比價網
   </div>
   
+
+  
   <div id="query_select" >
-    <input id="search" type="search" placeholder="搜尋遊戲名稱">
-    <div name='spreedsheet'>Spreedsheet here>>>  <a href="https://eshop-prices.com/" target="_blank">https://eshop-prices.com/</a></div>
+    <div id="searchbox">
+    <div id="menubtn">
+    <a href="http://www.nintendo.tw/hardware/switch/specs/#1" target="_blank" id="specbtn" class='btn'>主機規格情報</a>
+    <a href="https://forum.gamer.com.tw/C.php?bsn=31587&snA=454" target="_blank" id="sinupbtn" class='btn'>eshop註冊教學</a>
+    <a href="https://forum.gamer.com.tw/A.php?bsn=31587" target="_blank" id="specbtn" class='btn'>巴哈討論區</a>
+    </div>
+    <input id="search" type="search" placeholder="搜尋遊戲名稱"><span class="icon"><i class="fa fa-search"></i></span>
+    <div id="price_title">最低<i class="fas fa-dollar-sign"></i><input id="min_price" class="price" type="search" placeholder="0" value="0">～<i class="fas fa-dollar-sign"></i><input id="max_price" class="price" type="search" placeholder="10000" value="10000">最高</div>
+    </div>
     <div >匯率以<a href="https://finance.google.com/finance?q=USDTWD" target="_blank">Google 國際匯率</a>為基準</div>
-    <div>本網頁列舉價格僅供參考</div>
+    <div>本網頁列舉價格(新台幣$NTD)僅供參考</div>
     <div id='game_count'></div>
     <div style="color:red">!請注意地區語言版本!</div>
-    <div><a href="https://github.com/billxu0521/-switch_eshop" target="_blank">Github Link</a></div>
     
-    <div id="dialog" title="" style="display:none;width: 60%;text-align: center;">
+    <div id="guide_page" class="dialog" title="" style="display:none;width: 60%;text-align: center;">
         <iframe src="./guide.html" style='width:100%;height:800px;'></iframe>
     </div>
+    <div id="spec_page" class="dialog" title="" style="display:none;width: 60%;text-align: center;">
+        <iframe src="./spec.html" style='width:100%;height:800px;'></iframe>
+    </div>
+    <div id="singup_page" class="dialog" title="" style="display:none;width: 60%;text-align: center;">
+        <iframe src="./singup.html" style='width:100%;height:800px;'></iframe>
+    </div>
+
+
 
     <div class='container' id='show_table' style="height: 100%;">
         <div id='msg_1'>
@@ -327,7 +163,11 @@
 
   <hr>
   <footer>
-  <div id='footer'>Powered by: <a href="mailto:billxu0521@gmail.com">橫隔膜<a>@<a href="https://www.facebook.com/search/top/?q=%E5%90%B9%E8%91%97%E9%AD%94%E7%AC%9B%E7%9A%84%E6%B5%AE%E5%A3%AB%E5%BE%B7" target="_blank">Gameqb.net</a>
+
+  <div id='footer'>
+    本網頁內所記載之公司名稱、產品名稱、系統名稱以及各公司之註冊商標，以及所引用之圖片、資料之相關財產權皆歸屬於各原始公司、各原始情報網站。本網頁內所有文章歡迎自由連結，若欲轉載全文至其他網站，煩請發信告知，並切勿更改文章內容。本網頁參考之價格資料，來源皆為「<a href="https://eshop-prices.com/" target="_blank">https://eshop-prices.com/</a>」
+    <div><a href="https://github.com/billxu0521/-switch_eshop" target="_blank">Github Link</a></div>
+    Powered by: <a href="mailto:billxu0521@gmail.com">橫隔膜<a>@<a href="https://www.facebook.com/search/top/?q=%E5%90%B9%E8%91%97%E9%AD%94%E7%AC%9B%E7%9A%84%E6%B5%AE%E5%A3%AB%E5%BE%B7" target="_blank">Gameqb.net</a> 
   </div>
                                     
   </body>
